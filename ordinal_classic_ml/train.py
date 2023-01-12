@@ -1,7 +1,7 @@
 # My functions
-from ordinal_dnn.utils.loader import data_load
-from ordinal_dnn.utils.model import cls_model
-from ordinal_dnn.utils.train_eng import train_model
+from ordinal_classic_ml.utils.loader import data_load
+from ordinal_classic_ml.utils.model import cls_model
+from ordinal_classic_ml.utils.train_eng import train_model
 
 
 def train_build_models(args):

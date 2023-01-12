@@ -3,8 +3,8 @@ import pandas as pd
 import os
 
 # My functions
-from ordinal_dnn.ml_and_or.operation_research import operation_research_func
-import ordinal_dnn.utils.utils_functions as uf
+from ordinal_classic_ml.ml_and_or.operation_research import operation_research_func
+import ordinal_classic_ml.utils.utils_functions as uf
 
 
 def ml_and_or(args, df_epochs, cost_matrix, fault_price, const_num,

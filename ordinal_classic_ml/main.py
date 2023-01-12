@@ -5,8 +5,8 @@ import torch
 import os
 
 # My functions
-from ordinal_dnn import test, train
-import ordinal_dnn.utils.utils_functions as uf
+from ordinal_classic_ml import test, train
+import ordinal_classic_ml.utils.utils_functions as uf
 
 
 # Ignore randomness

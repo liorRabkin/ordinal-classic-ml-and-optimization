@@ -11,11 +11,11 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
 # My functions
-from ordinal_dnn.utils.eval_util import ordinal_mse
-from ordinal_dnn.utils.layer_util import extract_gap_layer, extract_vgg_fea_layer
-from ordinal_dnn.utils.layer_util import gen_cam_visual
-from ordinal_dnn.utils.grad_cam import GradCam, show_cam_on_image
-import ordinal_dnn.utils.utils_functions as uf
+from ordinal_classic_ml.utils.eval_util import ordinal_mse
+from ordinal_classic_ml.utils.layer_util import extract_gap_layer, extract_vgg_fea_layer
+from ordinal_classic_ml.utils.layer_util import gen_cam_visual
+from ordinal_classic_ml.utils.grad_cam import GradCam, show_cam_on_image
+import ordinal_classic_ml.utils.utils_functions as uf
 
 
 def eval_test(args, model, dset_loaders, dset_size, phase):

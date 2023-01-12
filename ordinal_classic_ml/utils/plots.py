@@ -5,7 +5,7 @@ import os
 import matplotlib.ticker as ticker
 
 # My functions
-from ordinal_dnn.utils.train_eng import stopping_epoch
+from ordinal_classic_ml.utils.train_eng import stopping_epoch
 
 
 def plot_acc_func_epoch(num_epochs, acc_train_epochs, acc_val_epochs):

@@ -6,9 +6,9 @@ from torch.autograd import Variable
 import time
 
 # My functions
-from ordinal_dnn.utils.torch_util import LRScheduler
-from ordinal_dnn.utils.loss_util import weighted_loss
-from ordinal_dnn.utils.eval_eng import eval_test
+from ordinal_classic_ml.utils.torch_util import LRScheduler
+from ordinal_classic_ml.utils.loss_util import weighted_loss
+from ordinal_classic_ml.utils.eval_eng import eval_test
 
 
 def stopping_epoch(val_df, early_stopping):
