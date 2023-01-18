@@ -44,13 +44,13 @@ def min_cost_label(cost_matrix, NUM_OF_LABELS, ml_predict_prob):
     return predict_labels, cost_eachSample_eachLabel
 
 
-def indices(NUM_OF_LABELS: int, labels: np.ndarray, predict_hard: np.ndarray,
+def indices(number_of_labels: int, labels: np.ndarray, predict_hard: np.ndarray,
             cost_matrix: np.ndarray) -> Dict[str, Any]:
     # Cost
     cost_sum = cost_pred_vector(cost_matrix, labels, predict_hard)
     # AUC
-    auc = np.zeros(NUM_OF_LABELS)
-    for i in range(NUM_OF_LABELS):
+    auc = np.zeros(number_of_labels)
+    for i in range(number_of_labels):
         predict_labels_binary = predict_hard == i
         labels_binary = labels == i
         auc[i] = roc_auc_score(labels_binary, predict_labels_binary)

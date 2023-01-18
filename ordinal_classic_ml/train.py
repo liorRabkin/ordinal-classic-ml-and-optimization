@@ -33,7 +33,7 @@ def train_model(args):
 
     print('--Phase 1: Split data (if needed)--')
     if args.split_data_phase == 'yes':
-        print('--Phase 1: Split data--')
+        print('--Phase 1: Spliting data now--')
 
         train = data_eng.feature_engineering(args.path, 'train_data.csv')
         data_eng.split_data(train, args.path, args.split_number, args.seed)
@@ -58,7 +58,7 @@ def train_model(args):
             train_lab, train_feat, val_lab, val_feat = read_split_data(fold_ind, args.path)
             model = ml.ml_model_fit(args, train_feat, train_lab)
             # running on train/val in each fold
-            print(f'--Phase 3: ML Model predict on train & valfolder {fold_ind}--')
+            print(f'--Phase 3: ML Model predict on train & val folder {fold_ind}--')
 
             for lab, feats, result_type in [(train_lab, train_feat, 'train'), (val_lab, val_feat, 'val')]:
                 ml_predict_prob, ml_predict_hard = ml.ml_model_predict(model, feats)

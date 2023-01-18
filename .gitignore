@@ -15,11 +15,13 @@ __pycache__/
 
 
 # Files
-data
+*data
+Runs
 doc
 .remote-sync.json
 
 # Files of certain surfix
+*.csv
 *.h5
 *.pkl
 *.py[cod]

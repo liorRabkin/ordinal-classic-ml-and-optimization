@@ -6,6 +6,7 @@ import ordinal_classic_ml.utils.utils_functions as uf
 def build_excel_fold(lab, ml_predict_prob, or_predict_hard, cost_matrix, number_of_labels):
     # ML vect and matrix
     ml_predict_hard = np.argmax(ml_predict_prob, axis=1)
+
     # if ml_predict_hard.shape[0] != ml_predict_hard.size:
     #     ml_predict_hard_vect = np.argmax(ml_predict_hard, axis=1)
     #     ml_predict_hard_matrix = ml_predict_hard

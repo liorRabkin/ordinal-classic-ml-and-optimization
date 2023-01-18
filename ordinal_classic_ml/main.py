@@ -22,20 +22,23 @@ import ordinal_classic_ml.utils.utils_functions as uf
 def set_args():
     parser = argparse.ArgumentParser(description='Pytorch Fine-Tune')
     parser.add_argument('--seed', type=int, default=42)
-    parser.add_argument('--algo_name', type=str, default="dt")
+    parser.add_argument('--algo_name', type=str, default="decision_tree",
+                        help='Algorithms options: '
+                             'decision_tree, random_forest, adaboost, catboost, xgboost, '
+                             'decision_tree_ordinal, random_forest_ordinal, adaboost_ordinal')
     parser.add_argument('--depth', type=int, default=10)
-    parser.add_argument('--alpha', type=float, default=0.0001)
-    parser.add_argument('--crit', type=str, default='no_mode')
+    parser.add_argument('--alpha', type=float, default=0.1)
+    parser.add_argument('--crit', type=str, default='no_mode',
+                        help='For regular algorithms write no_mode '
+                             'For ordinal algorithm the criterion options: WIGR_min, WIGR_max, WIGR_EV, WIGR_mode, WIGR_EV_fix, entropy')
     parser.add_argument('--split_number', type=int, default=5)
-    parser.add_argument('--data_dir', type=str, default='proj/data/ClsKLData/kneeKL224')
-    parser.add_argument('--model_dir', type=str, default='saving_models')
     parser.add_argument('--path', type=str,
                         default=r'C:\Users\tal43\Documents\studies\pythonProject\ordinal-classic-ml-and-optimization')
-    parser.add_argument('--split_data_phase', type=str, default='no')
+    parser.add_argument('--split_data_phase', type=str, default='no', help='Choose yes for spliting the data')
 
     parser.add_argument('--number_of_labels', type=int, default=5)
-    parser.add_argument('--const_number', type=int, default=3)
-    parser.add_argument('--labels_for_const', type=list, default=[3])
+    parser.add_argument('--const_number', type=int, default=100)
+    parser.add_argument('--labels_for_const', type=list, default=[0])
 
     args = parser.parse_args()
     return args
@@ -51,7 +54,6 @@ if __name__ == '__main__':
                                  [9, 7, 5, 3, 1]])
 
     args.fault_price = uf.fault_price_generator(5)
-    args.model_name = '{}-{}-{}-{}'.format(args.algo_name, args.depth, args.alpha, args.crit)
 
     # Train NN (create weights):
     train.train_model(args)
@@ -59,7 +61,6 @@ if __name__ == '__main__':
     # Test the model:
 
     # test = data_eng.feature_engineering(path, 'test_data.csv')
-
 
     # best_epoch = test.phases_build_all_criterions(args)
     # print('The best epoch is: ' + str(best_epoch))
