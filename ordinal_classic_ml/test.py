@@ -6,8 +6,7 @@ import torch
 from ordinal_classic_ml.ml_and_or.ml_to_or import ml_and_or
 from ordinal_classic_ml.utils import plots
 from ordinal_classic_ml.utils.eval_eng import eval_test
-from ordinal_classic_ml.utils.loader import data_load
-from ordinal_classic_ml.utils.train_eng import stopping_epoch
+# from ordinal_classic_ml.utils.train_eng import stopping_epoch
 
 
 def test_models(args, best_epoch):
