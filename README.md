@@ -1,7 +1,7 @@
 #  A Hybrid Cost-Sensitive Machine Learning and Optimization Models
 
-#### We propose a comprehensive analytic framework for scenarios that, in addition to including multi-class classification problems with misclassification costs, also have constraints on the number of classified samples of classes due to resource limitations.
-### This algorithm match to classic ML algorithms as decision tree, random forest and adaboost.
+### We propose a comprehensive analytic framework for scenarios that, in addition to including multi-class classification problems with misclassification costs, also have constraints on the number of classified samples of classes due to resource limitations.
+#### This algorithm is suitable for classic ML algorithms such as decision tree, random forest and adaboost.
 
 ![algorithm](algorithm.png)
 
