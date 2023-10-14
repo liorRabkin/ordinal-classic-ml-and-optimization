@@ -9,5 +9,5 @@
 ## Data
 We applied our framework on a public available data set about churn rate.
 The dataset made available at: [churn-risk-rate](https://www.kaggle.com/datasets/imsparsh/churn-risk-rate-hackerearth-ml).
-Change files' names: train to train_datat and test to test_data.
+Change files' names: train to train_data and test to test_data.
 
