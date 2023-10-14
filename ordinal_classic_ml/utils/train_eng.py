@@ -144,3 +144,14 @@ def build_excel_mean_of_folds(all_results, sheets_names):
     all_results['type'] = sheets_names
     all_results.set_index('type', inplace=True)
     return all_results
+
+def build_excel_mean_of_folds_test(all_results, sheets_names):
+    all_results = all_results.append(all_results.iloc[::2].mean(), ignore_index=True)
+    sheets_names.append('mean train')
+
+    all_results = all_results.append(all_results.loc[1::2].mean(), ignore_index=True)
+    sheets_names.append('mean val')
+
+    all_results['type'] = sheets_names
+    all_results.set_index('type', inplace=True)
+    return all_results

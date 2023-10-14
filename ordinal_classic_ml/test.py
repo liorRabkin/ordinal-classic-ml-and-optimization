@@ -1,129 +1,106 @@
 import os
 import pandas as pd
 import torch
+import numpy as np
 
 # My functions
-from ordinal_classic_ml.ml_and_or.ml_to_or import ml_and_or
-from ordinal_classic_ml.utils import plots
-from ordinal_classic_ml.utils.eval_eng import eval_test
-# from ordinal_classic_ml.utils.train_eng import stopping_epoch
+import ordinal_classic_ml.utils.model as ml
+import ordinal_classic_ml.utils.train_eng as train_eng
+import ordinal_classic_ml.utils.data_engineering as data_eng
+from ordinal_classic_ml.utils.operation_research import operation_research_func as operation_research_func
+import ordinal_classic_ml.utils.plots as plots
 
 
-def test_models(args, best_epoch):
-    best_models_path = os.path.join(args.model_dir, args.model_name)  # , str(0))
-    assert os.path.exists(best_models_path), "Model does not exist"
+def test_model(args, best_path, algo, depth, alpha, crit, constraint, constraint_classes_list):
+    """Evaluate the chosen model on train and test data"""
 
-    dset_loaders, dset_size, num_class = data_load(args)
+    print('--Phase 2.0: Argument settings--')
 
-    # Cost
-    cost_path = os.path.join(best_models_path, 'cost')
-    assert os.path.exists(cost_path), "Cost Models does not exist"
-    best_epoch_cost_path = os.path.join(best_models_path, 'cost', 'model-epoch_number_' + str(best_epoch))
+    print('--Phase 2.1: Getting data--')
 
-    model = torch.load(best_epoch_cost_path)
-    model.cuda()
-    model.eval()
+    data = {}
+    data['train'] = pd.read_csv(os.path.join(args.path, 'eng_train_data.csv'))
+    data['test'] = pd.read_csv(os.path.join(args.path, 'eng_test_data.csv'))
 
-    # Evaluate model
-    print('---Evaluate Cost model : {}--'.format(args.phase))
-    _, _, _, _ = eval_test(args, model, dset_loaders, dset_size, args.phase)
+    print('--Starting ML predict--')
 
-    # Mse
-    mse_path = os.path.join(best_models_path, 'mse', os.listdir(os.path.join(best_models_path, 'mse'))[0])
-
-    model = torch.load(mse_path)
-    model.cuda()
-
-    # Evaluate model
-    print('---Evaluate Mse model : {}--'.format(args.phase))
-    _, _, _, _ = eval_test(args, model, dset_loaders, dset_size, args.phase)
-
-
-def phases_build_all_criterions(args):
-    """Validate and Test the framework -
-    create plot of cost results as function of epochs,
-     transition matrices, excel with detailed information,
-    and find stopping epoch according to validation results"""
-
-    if args.wloss == 0:
-        loss = 'CE'
-    elif args.wloss == 1:
-        loss = 'weighted_loss'
+    sheets_names = []
+    all_results = pd.DataFrame()
 
     classes_for_const = ''
-    for cons_class in args.labels_for_const:
+    for cons_class in constraint_classes_list:
         classes_for_const += '_' + str(cons_class)
 
-    excel_title = str(loss) + '_' + str(args.num_epoch) + '_epochs_and_stop_after_' + str(
-        args.early_stopping) + '_epochs_const_on_class' + classes_for_const + '_with_const_' + str(
-        args.const_number) + '%'
+    phases = ['train', 'test']
 
-    draw_path = os.path.join(args.model_dir, args.model_name,
-                             'maps_const_' + str(args.const_number) + '%_on_class' + classes_for_const)
-    os.makedirs(draw_path, exist_ok=True)
+    for phase in phases:
 
-    dict_all_phases_cost = {}
-    dict_all_phases_acc = {}
-    best_epoch = 0
+        excel_name = 'results ' + algo + ' depth ' + str(depth) + ' alpha ' + str(
+            alpha) + ' criterion ' + crit + ' const ' + str(constraint) + '% on class' + classes_for_const + '.xlsx'
 
-    for phase in ['train', 'val', 'test']:
-        df_epochs = build_pd_from_model(args, phase)
+        # print(f'--Phase 2.2: {phase} - ML Model fit & predict--')
 
-        print('--Phase 3: Ml to Or--')
-        dict_all_phases_cost[phase], dict_all_phases_acc[phase], ml_lab, or_lab = \
-            ml_and_or(args, df_epochs, args.cost_matrix, args.fault_price, args.const_number, args.number_of_labels,
-                      excel_title, phase, args.labels_for_const)
+        algo_path = os.path.join(best_path, algo)
+        if not os.path.exists(algo_path):
+            os.mkdir(algo_path)
 
-        if phase != 'train':
+        algo_constraint_path = os.path.join(best_path, algo,
+                                            'const ' + str(constraint) + '% on class' + classes_for_const)
+        if not os.path.exists(algo_constraint_path):
+            os.mkdir(algo_constraint_path)
 
-            if phase == 'val':
-                print(f'--Phase 4: Find stopping epoch for val--')
-                best_epoch = stopping_epoch(dict_all_phases_cost['val'], args.early_stopping)
-                # best_epoch = 12
-            print(f'--Phase 5: Mistakes matrix for {phase}--')
-            print(f'--Phase 5: Mistakes matrix for {phase}--')
-            mistakes_real_ml = plots.mistakes_matrix(df_epochs[phase + ' labels epoch' + str(best_epoch)],
-                                                     ml_lab[phase + ' epoch' + str(best_epoch)], args.number_of_labels)
-            mistakes_ml_or = plots.mistakes_matrix(ml_lab[phase + ' epoch' + str(best_epoch)],
-                                                   or_lab[phase + ' epoch' + str(best_epoch)], args.number_of_labels)
-            mistakes_real_or = plots.mistakes_matrix(df_epochs[phase + ' labels epoch' + str(best_epoch)],
-                                                     or_lab[phase + ' epoch' + str(best_epoch)], args.number_of_labels)
+        phase_path = os.path.join(algo_constraint_path, phase)
+
+        if not os.path.exists(phase_path):
+            os.mkdir(phase_path)
+
+        # print(os.path.join(phase_path))
+        # if os.path.exists(os.path.join(phase_path)):
+        for file in os.listdir(phase_path):
+            os.remove(os.path.join(phase_path, file))
+
+        save_excel_path = os.path.join(phase_path, excel_name)
+
+        with pd.ExcelWriter(save_excel_path) as writer:
+            labels = data[phase]['labels'].values
+            labels = labels.astype(int)
+            features = data[phase].drop(['labels'], axis=1).values
+
+            if phase == 'train':
+                model = ml.ml_model_fit(features, labels, algo, depth, alpha, crit)
+
+            ml_predict_prob, ml_predict_hard = ml.ml_model_predict(model, features)
+
+            objective_function, or_predict_hard = operation_research_func(ml_predict_prob, args.number_of_labels,
+                                                                          args.cost_matrix, args.fault_price,
+                                                                          constraint, constraint_classes_list)
+
+            results = train_eng.build_excel_fold(labels, ml_predict_prob, or_predict_hard, args.cost_matrix,
+                                                 args.number_of_labels)
+
+            # results mean
+            results_mean = results.mean()[4:]
+            all_results = pd.concat((all_results, pd.DataFrame(results_mean).T), axis=0)
+            sheets_names.append(phase)
+
+            results.to_excel(writer, sheet_name=phase)
+            results_mean.to_excel(writer, sheet_name='total')
+
+            # print(f'--Phase 2.3: Mistakes matrix for {phase}--')
+            mistakes_real_ml = plots.mistakes_matrix(results['true labels'], results['ML decision labels'],
+                                                     args.number_of_labels)
+            mistakes_ml_or = plots.mistakes_matrix(results['ML decision labels'], results['OR decision labels'],
+                                                   args.number_of_labels)
+            mistakes_real_or = plots.mistakes_matrix(results['true labels'], results['OR decision labels'],
+                                                     args.number_of_labels)
             mistakes = [mistakes_real_ml, mistakes_ml_or, mistakes_real_or]
 
-            plots.draw_maps(mistakes, args.number_of_labels, phase + '_' + excel_title, draw_path)
+            plots.draw_maps(mistakes, args.number_of_labels, phase, phase_path)
             print('end draw maps')
 
-    print('--Phase 6: Plots--')
-    plots_path = os.path.join(args.model_dir, args.model_name,
-                              'plots_const_' + str(args.const_number) + '%_on_class' + classes_for_const)
-    os.makedirs(plots_path, exist_ok=True)
-    print('plot cost and acc as function of epochs')
-    plots.crit_as_epochs(dict_all_phases_cost, 'cost', plots_path, excel_title, best_epoch)
-    plots.crit_as_epochs(dict_all_phases_acc, 'acc', plots_path, excel_title, best_epoch)
+    return all_results
 
-    return best_epoch
-
-
-def build_pd_from_model(args, phase):
-    print('--Phase 1: Data prepration--')
-    dset_loaders, dset_size, num_class = data_load(args)
-
-    print('--Phase 2: Model loading--')
-    best_models_path = os.path.join(args.model_dir, args.model_name)  # , str(0))
-    assert os.path.exists(best_models_path), "Model does not exist"
-
-    df_epochs = pd.DataFrame()
-    max_epoch = args.num_epoch
-
-    for epoch in range(max_epoch):
-        path = os.path.join(best_models_path, 'cost', 'model-epoch_number_' + str(epoch + 1))
-        model = torch.load(path)
-        model.cuda()
-        model.eval()
-        acc, mse, outputs_all, labels_all = eval_test(args, model, dset_loaders, dset_size, phase)
-        df_epochs[phase + ' epoch' + str(epoch + 1)] = pd.Series(outputs_all)
-        df_epochs[phase + ' labels epoch' + str(epoch + 1)] = pd.Series(labels_all)
-
-    print('df_epochs')
-    print(df_epochs)
-    return df_epochs
+    # print(f'--Phase 2.3: Mistakes matrix for {phase}--')
+    # with pd.ExcelWriter(os.path.join(phase_path, excel_name)) as writer:
+    #     total_results = train_eng.build_excel_mean_of_folds(all_results, sheets_names)
+    #     total_results.to_excel(writer, sheet_name='total')

@@ -7,7 +7,7 @@ import os
 # My functions
 from ordinal_classic_ml import test, train
 import ordinal_classic_ml.utils.utils_functions as uf
-
+import utils.plots as plots
 
 # Ignore randomness
 # def set_seed(seed):
@@ -26,8 +26,8 @@ def set_args():
                         help='Algorithms options: '
                              'decision_tree, random_forest, adaboost, catboost, xgboost, '
                              'decision_tree_ordinal, random_forest_ordinal, adaboost_ordinal')
-    parser.add_argument('--depth', type=int, default=10)
-    parser.add_argument('--alpha', type=float, default=0.1)
+    parser.add_argument('--depth', type=int, default=5)
+    parser.add_argument('--alpha', type=float, default=0)
     parser.add_argument('--crit', type=str, default='no_mode',
                         help='For regular algorithms write no_mode '
                              'For ordinal algorithm the criterion options: WIGR_min, WIGR_max, WIGR_EV, WIGR_mode, WIGR_EV_fix, entropy')
@@ -35,10 +35,11 @@ def set_args():
     parser.add_argument('--path', type=str,
                         default=r'C:\Users\tal43\Documents\studies\pythonProject\ordinal-classic-ml-and-optimization')
     parser.add_argument('--split_data_phase', type=str, default='no', help='Choose yes for spliting the data')
-
+    parser.add_argument('--test_data_phase', type=str, default='no',
+                        help='Choose yes for feature engineering for test data')
     parser.add_argument('--number_of_labels', type=int, default=5)
-    parser.add_argument('--const_number', type=int, default=100)
-    parser.add_argument('--labels_for_const', type=list, default=[0])
+    parser.add_argument('--const_number', type=int, default=0.5)
+    parser.add_argument('--labels_for_const', type=list, default=[2, 4])
 
     args = parser.parse_args()
     return args
@@ -55,19 +56,31 @@ if __name__ == '__main__':
 
     args.fault_price = uf.fault_price_generator(5)
 
-    # Train NN (create weights):
-    train.train_model(args)
 
-    # Test the model:
+    print('-------------------------------train')
 
-    # test = data_eng.feature_engineering(path, 'test_data.csv')
+    # Classic algorithms
+    # args.algo_name = 'decision_tree'
+    # for args.depth in [2, 3, 4, 5, 6]:
+    #     print(f'crit {args.crit}, alpha {args.alpha}, depth {args.depth}')
+    #     train.train_model(args)
 
-    # best_epoch = test.phases_build_all_criterions(args)
-    # print('The best epoch is: ' + str(best_epoch))
 
-    # args.phase = 'test'
-    # args.batch_size = 16
-    # test.test_models(args, best_epoch)
+    # Ordinal algorithms
+    # args.algo_name = 'decision_tree_ordinal'
+    # for args.crit in ['WIGR_min', 'WIGR_max', 'WIGR_EV', 'WIGR_mode', 'WIGR_EV_fix']:
+    #     for args.alpha in [0.5, 1, 3]:
+    #         for args.depth in [2, 4, 5, 6]:
+    #             print(f'crit {args.crit}, alpha {args.alpha}, depth {args.depth}')
+    #             train.train_model(args)
+
+
+    # print('-------------------------------optimization')
+    # mean_train_test_df = uf.parameters_optimization(args)
+    # print('-------------------------------summary')
+    # uf.creating_summary_excel(args, mean_train_test_df)
+
 
     # Create more graphs
-    # plots.create_external_graphs(args)
+    print('-------------------------------graphs')
+    plots.create_external_graphs(args)

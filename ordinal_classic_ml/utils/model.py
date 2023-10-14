@@ -84,8 +84,10 @@ def adaboost_ordinal(features_train, labels_train, depth, alpha, criterion):
     return adaboost_classifier
 
 
-def ml_model_fit(args, features_train, labels_train):
-    algo = args.algo_name
+
+
+def ml_model_fit(features_train, labels_train, algo, depth, alpha, crit):
+    algorithm = decision_tree
     if algo == 'decision_tree':
         algorithm = decision_tree
     elif algo == 'random_forest':
@@ -109,7 +111,7 @@ def ml_model_fit(args, features_train, labels_train):
     # elif algo == 'adaboost_ordinal_old':
     #     algorithm = adaboost_ordinal_old
 
-    model = algorithm(features_train, labels_train, args.depth, args.alpha, args.crit)
+    model = algorithm(features_train, labels_train, depth, alpha, crit)
     return model
 
 
