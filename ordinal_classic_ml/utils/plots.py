@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import os
-import matplotlib.ticker as ticker
+import matplotlib as mpl
 
 
 def plot_acc_func_epoch(num_epochs, acc_train_epochs, acc_val_epochs):
@@ -20,9 +20,10 @@ def mistakes_matrix(vector1, vector2, num_of_labels):
     return mistakes
 
 
-def draw_maps(mistakes, num_of_labels, name, draw_path):
+def draw_maps(mistakes, num_of_labels, phase, draw_path):
     sum_instances = sum([sum(i) for i in mistakes[0]])
 
+    mpl.use('TkAgg')
     fig, ax = plt.subplots()
     # Loop over data dimensions and create text annotations.
     for i in range(num_of_labels):
@@ -41,7 +42,7 @@ def draw_maps(mistakes, num_of_labels, name, draw_path):
     ax.set_ylabel('Actual class', fontsize=12)
     ax.set_xlabel('Predicted class', fontsize=12)
     # ax.set_title('True vs ML')
-    fig.savefig(os.path.join(draw_path, 'true_ml_' + name + '.png'))
+    fig.savefig(os.path.join(draw_path, 'true_ml_' + phase + '.png'))
 
     fig, ax = plt.subplots()
     # Loop over data dimensions and create text annotations.
@@ -61,7 +62,7 @@ def draw_maps(mistakes, num_of_labels, name, draw_path):
     ax.set_ylabel('Predicted class by ML model', fontsize=12)
     ax.set_xlabel('Predicted class by OR model', fontsize=12)
     # ax.set_title('ML vs OR')
-    fig.savefig(os.path.join(draw_path, 'ml_or_' + name + '.png'))
+    fig.savefig(os.path.join(draw_path, 'ml_or_' + phase + '.png'))
 
     fig, ax = plt.subplots()
     # Loop over data dimensions and create text annotations.
@@ -81,48 +82,48 @@ def draw_maps(mistakes, num_of_labels, name, draw_path):
     ax.set_ylabel('Actual class', fontsize=12)
     ax.set_xlabel('Predicted class', fontsize=12)
     # ax.set_title('True vs OR')
-    fig.savefig(os.path.join(draw_path, 'true_or_' + name + '.png'))
+    fig.savefig(os.path.join(draw_path, 'true_or_' + phase + '.png'))
 
     # plt.show()
 
 
-def crit_as_epochs(dict_phases, crit, path, title, best_epoch):
-    # create figure and axis objects with subplots()
-    fig, ax = plt.subplots()
-
-    # make a plot
-    ax.plot(dict_phases['train']['epoch'], dict_phases['train']['ml ' + crit], color='#176ccd', label='Train CS_VGG-19')
-    ax.plot(dict_phases['train']['epoch'], dict_phases['train']['or ' + crit], color='#176ccd', linestyle='dotted',
-            label='Train Hyb_CS')
-
-    # set x-axis label
-    ax.set_xlabel("Epochs", fontsize=14)
-    ax.set_ylabel("Accuracy", fontsize=14)
-
-    ax.plot(dict_phases['val']['epoch'], dict_phases['val']['ml ' + crit], color='#cd7817', label='Val CS_VGG-19')
-    ax.plot(dict_phases['val']['epoch'], dict_phases['val']['or ' + crit], color='#cd7817', linestyle='dotted',
-            label='Val Hyb_CS')
-
-    ax.axvline(x=best_epoch, color='black', linestyle='dashed', label=f'Selected epoch')  # {best_epoch}')
-    ax.xaxis.set_major_locator(ticker.MaxNLocator(integer=True))
-    ax.legend()
-    ax.set_ylim([0.3, 0.85])
-
-    # save the plot as a file
-    fig.savefig(os.path.join(path, f'{crit}__{title}.png'))
-
-    fig2, ax2 = plt.subplots()
-
-    # make a plot
-    ax2.plot(dict_phases['test']['epoch'], dict_phases['test']['ml ' + crit], color='red', label='test ml')
-    ax2.plot(dict_phases['test']['epoch'], dict_phases['test']['or ' + crit], color='blue', label='test or')
-    # set x-axis label
-    ax2.set_xlabel("Epochs", fontsize=14)
-    ax2.set_ylabel("Accuracy", fontsize=14)
-    ax2.legend()
-
-    # save the plot as a file
-    fig2.savefig(os.path.join(path, f'{crit}__test__{title}.png'))
+# def crit_as_epochs(dict_phases, crit, path, title, best_epoch):
+#     # create figure and axis objects with subplots()
+#     fig, ax = plt.subplots()
+#
+#     # make a plot
+#     ax.plot(dict_phases['train']['epoch'], dict_phases['train']['ml ' + crit], color='#176ccd', label='Train CS_VGG-19')
+#     ax.plot(dict_phases['train']['epoch'], dict_phases['train']['or ' + crit], color='#176ccd', linestyle='dotted',
+#             label='Train Hyb_CS')
+#
+#     # set x-axis label
+#     ax.set_xlabel("Epochs", fontsize=14)
+#     ax.set_ylabel("Accuracy", fontsize=14)
+#
+#     ax.plot(dict_phases['val']['epoch'], dict_phases['val']['ml ' + crit], color='#cd7817', label='Val CS_VGG-19')
+#     ax.plot(dict_phases['val']['epoch'], dict_phases['val']['or ' + crit], color='#cd7817', linestyle='dotted',
+#             label='Val Hyb_CS')
+#
+#     ax.axvline(x=best_epoch, color='black', linestyle='dashed', label=f'Selected epoch')  # {best_epoch}')
+#     ax.xaxis.set_major_locator(ticker.MaxNLocator(integer=True))
+#     ax.legend()
+#     ax.set_ylim([0.3, 0.85])
+#
+#     # save the plot as a file
+#     fig.savefig(os.path.join(path, f'{crit}__{title}.png'))
+#
+#     fig2, ax2 = plt.subplots()
+#
+#     # make a plot
+#     ax2.plot(dict_phases['test']['epoch'], dict_phases['test']['ml ' + crit], color='red', label='test ml')
+#     ax2.plot(dict_phases['test']['epoch'], dict_phases['test']['or ' + crit], color='blue', label='test or')
+#     # set x-axis label
+#     ax2.set_xlabel("Epochs", fontsize=14)
+#     ax2.set_ylabel("Accuracy", fontsize=14)
+#     ax2.legend()
+#
+#     # save the plot as a file
+#     fig2.savefig(os.path.join(path, f'{crit}__test__{title}.png'))
 
 
 # def crit_as_epochs_all_constraints(paths, args, constraints, phase, crit, type):
@@ -183,65 +184,63 @@ def crit_as_epochs(dict_phases, crit, path, title, best_epoch):
 #                              crit + ' as function of epochs ' + algo + ' algorithm.png'))
 
 
-# def moves_bars(paths, args, groups, phase, class_num):
-#     equal = []
-#     pos = []
-#     neg = []
-#
-#     for excel_path in paths:
-#         excel_files = os.listdir(excel_path)
-#         for file in excel_files:
-#
-#             matches = [phase, "20"]
-#
-#             if all(x in file for x in matches):
-#                 path = os.path.join(excel_path, file)
-#
-#                 read_total_sheet = pd.read_excel(path, sheet_name='total')
-#                 df_cost = pd.DataFrame()
-#                 df_cost['or cost'] = read_total_sheet['OR real cost']
-#                 df_cost['ml cost'] = read_total_sheet['ML (max_likelihood) real cost']
-#                 df_cost['epoch'] = pd.Series([i + 1 for i in range(read_total_sheet.shape[1])])
-#                 best_epoch = stopping_epoch(df_cost, args.early_stopping)
-#                 best_epoch_row_name = 'val epoch' + str(best_epoch)
-#
-#                 read_total_sheet = read_total_sheet.set_index('type')
-#
-#                 best_epoch_row = read_total_sheet.loc[best_epoch_row_name]
-#
-#                 equal.append(np.floor(best_epoch_row['equal - no moves'] * 1000) / 1000)
-#                 pos.append(np.ceil(best_epoch_row['pos move'] * 1000) / 1000)
-#                 neg.append(np.floor(best_epoch_row['neg move'] * 1000) / 1000)
-#
-#     neg[0] = neg[0] + 0.001
-#     equal[3] = equal[3] + 0.001
-#     pos[3] = pos[3] - 0.001
-#
-#     N = len(groups)
-#     print(F'N {N}')
-#     ind = np.arange(N)  # the x locations for the groups
-#     width = 0.5  # the width of the bars: can also be len(x) sequence
-#
-#     fig, ax = plt.subplots()
-#
-#     p1 = ax.bar(ind, equal, width, label='Equal', color='#bdbdbd')
-#     p2 = ax.bar(ind, pos, width, bottom=equal, label='Pos', color='#ffffff')  # cd7817') #b5f38d')
-#     p3 = ax.bar(ind, neg, width, bottom=[x + y for x, y in zip(equal, pos)], label='Neg',
-#                 color='#292929')  # 176ccd') #ef796a')
-#
-#     ax.set_ylabel('Percentage of samples', fontsize=12)
-#     # ax.set_title('Percentage equal/pos/neg moves')
-#     ax.set_xticks(ind, labels=groups, fontsize=10)
-#     ax.legend()
-#
-#     # Label with label_type 'center' instead of the default 'edge'
-#     ax.bar_label(p1, label_type='center')
-#     ax.bar_label(p2, label_type='center')
-#     ax.bar_label(p3, color='w', label_type='center')
-#
-#     plt.show()
-#     fig.savefig(os.path.join('/home/dsi/liorrabkin/projects/thesis_server/saving_models',
-#                              'moves_bars_constraints_class_' + class_num + '.png'))
+def moves_bars(args, paths, groups, class_num):
+    equal = []
+    pos = []
+    neg = []
+
+    mpl.use('TkAgg')
+
+    for excel_path in paths:
+        excel_files = os.listdir(excel_path)
+        for file in excel_files:
+            if file.endswith('xlsx'):
+                path = os.path.join(excel_path, file)
+
+                read_total_sheet = pd.read_excel(path, sheet_name='total', index_col=0)
+                # df_cost = pd.DataFrame()
+                # df_cost['or cost'] = read_total_sheet.loc['OR real cost']
+                # df_cost['ml cost'] = read_total_sheet.loc['ML (max_likelihood) real cost']
+                #
+                # read_total_sheet = read_total_sheet.set_index('type')
+                #
+                # best_epoch_row = read_total_sheet.loc['mean val']
+
+                equal.append((np.floor(read_total_sheet.loc['equal - no moves'].values * 1000) / 1000).tolist())
+                pos.append((np.floor(read_total_sheet.loc['pos move'].values * 1000) / 1000).tolist())
+                neg.append((np.floor(read_total_sheet.loc['neg move'].values * 1000) / 1000).tolist())
+
+    flat_equal = [item for sublist in equal for item in sublist]
+    flat_pos = [item for sublist in pos for item in sublist]
+    flat_neg = [item for sublist in neg for item in sublist]
+
+    flat_neg[0] = flat_neg[0] + 0.001
+    flat_equal[3] = flat_equal[3] + 0.001
+    flat_pos[3] = flat_pos[3] - 0.001
+
+    N = len(groups)
+    ind = np.arange(N)  # the x locations for the groups
+    width = 0.5  # the width of the bars: can also be len(x) sequence
+
+    fig, ax = plt.subplots()
+
+    p1 = ax.bar(ind, flat_equal, width, label='Equal', color='#bdbdbd')
+    p2 = ax.bar(ind, flat_pos, width, bottom=flat_equal, label='Pos', color='#ffffff')  # cd7817') #b5f38d')
+    p3 = ax.bar(ind, flat_neg, width, bottom=[x + y for x, y in zip(flat_equal, flat_pos)], label='Neg',
+                color='#292929')  # 176ccd') #ef796a')
+
+    ax.set_ylabel('Percentage of samples', fontsize=12)
+    # ax.set_title('Percentage equal/pos/neg moves')
+    ax.set_xticks(ind, labels=groups, fontsize=10)
+    ax.legend()
+
+    # Label with label_type 'center' instead of the default 'edge'
+    ax.bar_label(p1, label_type='center')
+    ax.bar_label(p2, label_type='center',padding=-3)
+    ax.bar_label(p3, color='gray', label_type='center', padding=5)
+
+    plt.show()
+    fig.savefig(os.path.join(args.path, 'Runs', 'Best_models', 'moves_bars_constraints_class_' + class_num + '.png'))
 
 
 # def steps_ml_or_bars(paths, args, names, class_num):
@@ -297,43 +296,244 @@ def crit_as_epochs(dict_phases, crit, path, title, best_epoch):
 #                              'Steps_ML_OR_constraints_class_' + class_num + '.png'))
 
 
+def standard_deviation(args, root_dir, const_list, algo_list):
+    mpl.use('TkAgg')
+    val_list_of_const_list = []
+    for const in const_list:
+        val_paths_specific_const = []
+        for root_dir_specific in root_dir:
+            val_paths_specific_const.append(os.path.join(root_dir_specific, const, 'val 5 folds'))
+        cost = []
+        for excel_path in val_paths_specific_const:
+            excel_files = os.listdir(excel_path)
+            for file in excel_files:
+                if file.endswith('xlsx'):
+                    path = os.path.join(excel_path, file)
+
+                    read_total_sheet = pd.read_excel(path, sheet_name='total', index_col=0)
+
+                    cost_val_list = []
+                    for index in range(1, 6):
+                        cost_val_list.append(read_total_sheet['OR real cost'].loc['val'+str(index)])
+                    cost.append(cost_val_list)
+
+        val_list_of_const_list.append(cost)
+
+    print(val_list_of_const_list)
+    # fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
+    fig1, ax1 = plt.subplots()
+    fig2, ax2 = plt.subplots()
+    fig3, ax3 = plt.subplots()
+
+    fig1.tight_layout(pad=3)
+
+    barWidth = 0.1
+
+    r1 = 0
+    r2 = r1 + barWidth
+    r3 = r2 + barWidth
+    r4 = r3 + barWidth
+
+    np_cost_1andhalf = np.array(val_list_of_const_list[1])
+    np_cost_1 = np.array(val_list_of_const_list[2])
+    np_cost_half = np.array(val_list_of_const_list[3])
+
+    ax1.plot([r3-barWidth/2, r3-barWidth/2],  [0, 2], linestyle='dashed', color='black')
+
+    ax1.bar(r1, np_cost_half[0].mean(), barWidth/2, color='gainsboro', yerr=np_cost_half[0].std(), capsize=2, edgecolor='grey', label='$n_4$ = 0.5%')
+    ax1.bar(r2, np_cost_half[1].mean(), barWidth/2, color='gainsboro', yerr=np_cost_half[1].std(), capsize=2, edgecolor='grey')
+    ax1.bar(r3, np_cost_half[2].mean(), barWidth/2, color='gainsboro', yerr=np_cost_half[2].std(), capsize=2, edgecolor='grey')
+    ax1.bar(r4, np_cost_half[3].mean(), barWidth/2, color='gainsboro', yerr=np_cost_half[3].std(), capsize=2, edgecolor='grey')
+
+    ax2.plot([r3-barWidth/2, r3-barWidth/2],  [0, 2], linestyle='dashed', color='black')
+
+    ax2.bar(r1, np_cost_1[0].mean(), barWidth/2, color='darkgrey', yerr=np_cost_1[0].std(), capsize=2, edgecolor='grey', label='$n_4$ = 1%')
+    ax2.bar(r2, np_cost_1[1].mean(), barWidth/2, color='darkgrey', yerr=np_cost_1[1].std(), capsize=2, edgecolor='grey')
+    ax2.bar(r3, np_cost_1[2].mean(), barWidth/2, color='darkgrey', yerr=np_cost_1[2].std(), capsize=2, edgecolor='grey')
+    ax2.bar(r4, np_cost_1[3].mean(), barWidth/2, color='darkgrey', yerr=np_cost_1[3].std(), capsize=2, edgecolor='grey')
+
+    ax3.plot([r3-barWidth/2, r3-barWidth/2],  [0, 2], linestyle='dashed', color='black')
+
+    ax3.bar(r1, np_cost_1andhalf[0].mean(), barWidth/2, color='dimgray', yerr=np_cost_1andhalf[0].std(), capsize=2, edgecolor='grey', label='$n_4$ = 1.5%')
+    ax3.bar(r2, np_cost_1andhalf[1].mean(), barWidth/2, color='dimgray', yerr=np_cost_1andhalf[1].std(), capsize=2, edgecolor='grey')
+    ax3.bar(r3, np_cost_1andhalf[2].mean(), barWidth/2, color='dimgray', yerr=np_cost_1andhalf[2].std(), capsize=2, edgecolor='grey')
+    ax3.bar(r4, np_cost_1andhalf[3].mean(), barWidth/2, color='dimgray', yerr=np_cost_1andhalf[3].std(), capsize=2, edgecolor='grey')
+
+
+    ax1.set_xlabel('Algorithms', fontweight='bold', fontsize=10)
+    ax1.set_ylabel('Cost', fontweight='bold', fontsize=10)
+    ax1.set_xticks([r * barWidth for r in range(len(algo_list))], algo_list)
+    # ax1.set_title('The cost result and STD for framework with constraint $n_4=0.5\%$')
+
+    ax2.set_xlabel('Algorithms', fontweight='bold', fontsize=10)
+    ax2.set_ylabel('Cost', fontweight='bold', fontsize=10)
+    ax2.set_xticks([r * barWidth for r in range(len(algo_list))], algo_list)
+    # ax2.set_title('The cost result and STD for framework with constraint $n_4=1\%$')
+
+    ax3.set_xlabel('Algorithms', fontweight='bold', fontsize=10)
+    ax3.set_ylabel('Cost', fontweight='bold', fontsize=10)
+    ax3.set_xticks([r * barWidth for r in range(len(algo_list))], algo_list)
+    # ax3.set_title('The cost result and STD for framework with constraint $n_4=1.5\%$')
+
+    ax1.set_ylim(1.67, 1.82)
+    ax2.set_ylim(1.67, 1.82)
+    ax3.set_ylim(1.67, 1.82)
+
+    ax1.legend()
+    ax2.legend()
+    ax3.legend()
+
+    plt.show()
+    # fig.savefig(os.path.join(args.path, 'Runs', 'Best_models', 'std_graphs.png'))
+
+
+def test_cost_bars(args, root_dir, const_list, algo_list):
+    mpl.use('TkAgg')
+    test_list_of_const_list = []
+    val_list_of_const_list = []
+    for const in const_list:
+        test_paths_specific_const = []
+        for root_dir_specific in root_dir:
+            test_paths_specific_const.append(os.path.join(root_dir_specific, const, 'test'))
+        cost = []
+        for excel_path in test_paths_specific_const:
+            excel_files = os.listdir(excel_path)
+            for file in excel_files:
+                if file.endswith('xlsx'):
+                    path = os.path.join(excel_path, file)
+                    read_total_sheet = pd.read_excel(path, sheet_name='total', index_col=0)
+                    cost.append(read_total_sheet.loc['OR real cost'].iloc[0])
+
+        test_list_of_const_list.append(cost)
+
+    algo = []
+    ord_algo = []
+    for c_list in range(len(test_list_of_const_list)):
+        algo.append(test_list_of_const_list[c_list][0])
+        ord_algo.append(test_list_of_const_list[c_list][1])
+
+    print(algo)
+    print(ord_algo)
+    print(test_list_of_const_list)
+
+
+
+    fig, ax1 = plt.subplots()
+    fig.tight_layout(pad=3)
+
+    # set width of bar
+    barWidth = 0.2
+    # Set position of bar on X axis
+    br1 = range(len(const_list))
+    br2 = [x + barWidth for x in br1]
+
+
+    ax1.bar(br1, ord_algo, color='gainsboro', width=barWidth,
+            edgecolor='grey', label=algo_list[1])
+    ax1.bar(br2, algo, color='dimgray', width=barWidth,
+            edgecolor='grey', label=algo_list[0])
+
+
+
+    ax1.set_xlabel('Algorithms', fontweight='bold', fontsize=10)
+    ax1.set_ylabel('Cost', fontweight='bold', fontsize=10)
+
+    xticks = [x + barWidth/4 for x in br1]
+
+    ax1.set_xticks(xticks, ['W/o constraints', '$n_4=1.5\%$', '$n_4=1\%$', '$n_4=0.5\%$'])
+    ax1.set_title('Comparison of cost results over different constraints on test dataset')
+
+    ax1.set_ylim(1.4, 1.8)
+    ax1.legend()
+
+
+    plt.show()
+    # fig.savefig(os.path.join(args.path, 'Runs', 'Best_models', 'std_graphs.png'))
+
+
+def test_cost_bars_per_algo(args, root_dir, const_list, algo_list):
+    mpl.use('TkAgg')
+    test_list_of_const_list = []
+    val_list_of_const_list = []
+    for const in const_list:
+        test_paths_specific_const = []
+        for root_dir_specific in root_dir:
+            test_paths_specific_const.append(os.path.join(root_dir_specific, const, 'test'))
+        cost = []
+        for excel_path in test_paths_specific_const:
+            excel_files = os.listdir(excel_path)
+            for file in excel_files:
+                if file.endswith('xlsx'):
+                    path = os.path.join(excel_path, file)
+                    read_total_sheet = pd.read_excel(path, sheet_name='total', index_col=0)
+                    cost.append(read_total_sheet.loc['OR real cost'].iloc[0])
+
+        test_list_of_const_list.append(cost)
+
+
+    fig, ax1 = plt.subplots()
+    fig.tight_layout(pad=3)
+
+    # set width of bar
+    barWidth = 0.1
+    # Set position of bar on X axis
+    br1 = range(len(algo_list))
+    br2 = [x + barWidth for x in br1]
+    br3 = [x + barWidth for x in br2]
+    br4 = [x + barWidth for x in br3]
+
+
+    ax1.bar(br1, test_list_of_const_list[0], color='gainsboro', width=barWidth,
+            edgecolor='grey', label=const_list[0])
+    ax1.bar(br2, test_list_of_const_list[1], color='dimgray', width=barWidth,
+            edgecolor='grey', label=const_list[1])
+    ax1.bar(br3, test_list_of_const_list[2], color='grey', width=barWidth,
+            edgecolor='grey', label=const_list[2])
+    ax1.bar(br4, test_list_of_const_list[3], color='lightgrey', width=barWidth,
+            edgecolor='grey', label=const_list[3])
+
+
+    ax1.set_xlabel('Algorithms', fontweight='bold', fontsize=10)
+    ax1.set_ylabel('Cost', fontweight='bold', fontsize=10)
+    ax1.set_xticks(br1, algo_list)
+    # ax1.set_title('Comparison of different constraints on cost test result')
+
+    ax1.set_ylim(1.4, 1.8)
+    ax1.legend()
+
+
+    plt.show()
+    fig.savefig(os.path.join(args.path, 'Runs', 'Best_models', 'std_graphs.png'))
+
+
 def create_external_graphs(args):
-    root_dir_CE = '/home/dsi/liorrabkin/projects/thesis_server/saving_models/vgg-19-SGD-0'
-    root_dir_ord = '/home/dsi/liorrabkin/projects/thesis_server/saving_models/vgg-19-SGD-1'
+    root_dir_dt_CE = os.path.join(args.path, r'Runs\Best_models\decision_tree')
+    root_dir_dt_ord = os.path.join(args.path, r'Runs\Best_models\decision_tree_ordinal')
+    root_dir_rf_CE = os.path.join(args.path, r'Runs\Best_models\random_forest')
+    root_dir_rf_ord = os.path.join(args.path, r'Runs\Best_models\random_forest_ordinal')
 
-    x_names = ['VGG-19', 'CS_VGG-19', r'VGG-19 $n_3=3\%$', 'CS_VGG-19 $n_3=3\%$']
-
-    paths1 = [os.path.join(root_dir_CE, 'excels_const_100%_on_class_0'),
-              os.path.join(root_dir_ord, 'excels_const_100%_on_class_0'),
-              os.path.join(root_dir_CE, 'excels_const_1.5%_on_class_4'),
-              os.path.join(root_dir_ord, 'excels_const_1.5%_on_class_4'),
-              os.path.join(root_dir_CE, 'excels_const_1%_on_class_4'),
-              os.path.join(root_dir_ord, 'excels_const_1%_on_class_4'),
-              os.path.join(root_dir_CE, 'excels_const_0.5%_on_class_4'),
-              os.path.join(root_dir_ord, 'excels_const_0.5%_on_class_4')]
-
-    paths2 = [os.path.join(root_dir_CE, 'excels_const_100%_on_class_0'),
-              os.path.join(root_dir_ord, 'excels_const_100%_on_class_0'),
-              os.path.join(root_dir_CE, 'excels_const_3%_on_class_3'),
-              os.path.join(root_dir_ord, 'excels_const_3%_on_class_3')]
-
-    paths3 = [os.path.join(root_dir_CE, 'excels_const_100%_on_class_0'),
-              os.path.join(root_dir_CE, 'excels_const_0.5%_on_class_4'),
-              os.path.join(root_dir_CE, 'excels_const_1%_on_class_4'),
-              os.path.join(root_dir_CE, 'excels_const_1.5%_on_class_4')]
-
-    paths4 = [os.path.join(root_dir_ord, 'excels_const_100%_on_class_0'),
-              os.path.join(root_dir_ord, 'excels_const_0.5%_on_class_4'),
-              os.path.join(root_dir_ord, 'excels_const_1%_on_class_4'),
-              os.path.join(root_dir_ord, 'excels_const_1.5%_on_class_4')]
+    root_dir_dt = [root_dir_dt_CE, root_dir_dt_ord]
+    root_dir_rf = [root_dir_rf_CE, root_dir_rf_ord]
+    root_dir = [root_dir_dt_CE, root_dir_dt_ord, root_dir_rf_CE, root_dir_rf_ord]
+    const_list = ['const 100% on class_0', 'const 1.5% on class_4', 'const 1% on class_4', 'const 0.5% on class_4']
+    # const_list = ['const 100% on class_0']
+    algo_list_dt = ['DT', 'DT_ORD']
+    algo_list_rf = ['RF', 'RF_ORD']
+    algo_list = ['DT', 'DT_ORD', 'RF', 'RF_ORD']
+    # x_names = ['RF', 'ord_RF', r'RF $n_3=3\%$', r'ord_RF $n_3=3\%$']
+    # paths_dt = []
+    # paths_dt_ord = []
+    # paths_rf = []
+    # paths_rf_ord = []
+    # for const in ['const 0.5% on class_4', 'const 1% on class_4', 'const 1.5% on class_4' 'const 0.5% on class_2_4', 'const 3% on class_3', 'const 100% on class_0']:
+    #     paths.append(os.path.join(root_dir_dt_CE, const, 'test'))
+    #     paths.append(os.path.join(root_dir_dt_ord, const, 'test'))
 
 
-
-    constraints = ['100%', '1.5%', '1%', '0.5%']
-    phase = 'val'
-    crit = 'cost'
-    type = 'OL'
-
-    # moves_bars(paths2, args, x_names, phase, '3')
+    # moves_bars(args, paths, x_names, '3')
     # steps_ml_or_bars(paths1, args, constraints, '4')
-    # crit_as_epochs_all_constraints(paths4, args, constraints, phase, crit, type)
+    # standard_deviation(args, root_dir, const_list, algo_list)
+    test_cost_bars(args, root_dir_dt, const_list, algo_list_dt)
+    test_cost_bars(args, root_dir_rf, const_list, algo_list_rf)
+    # test_cost_bars_per_algo(args, root_dir_dt, const_list, algo_list_dt)
+    # test_cost_bars_per_algo(args, root_dir_rf, const_list, algo_list_rf)
