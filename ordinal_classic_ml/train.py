@@ -19,21 +19,21 @@ def read_split_data(fold_ind, folder):
             df = df.loc[:, ~df.columns.str.contains('^Unnamed')]  # delete unnamed column
             train = df.groupby('job').get_group('train')
             train_lab = train['labels'].values
-            train_feat = train.drop(['labels', 'job'], axis=1).values
+            train_feat = train.drop(['labels', 'job'], axis=1).set_index('age').values
             val = df.groupby('job').get_group('val')
             val_lab = val['labels'].values
-            val_feat = val.drop(['labels', 'job'], axis=1).values
+            val_feat = val.drop(['labels', 'job'], axis=1).set_index('age').values
             return train_lab, train_feat, val_lab, val_feat
 
 
 def train_model(args):
     """Train the model (fit & predict) and validate the model (predict)"""
 
-    print('--Phase 0: Argument settings--')
+    print('--Phase 1.0: Argument settings--')
 
-    print('--Phase 1: Split data (if needed)--')
+    print('--Phase 1.1: Split data (if needed)--')
     if args.split_data_phase == 'yes':
-        print('--Phase 1: Spliting data now--')
+        print('--Phase 1.1: Spliting data now--')
 
         train = data_eng.feature_engineering(args.path, 'train_data.csv')
         data_eng.split_data(train, args.path, args.split_number, args.seed)
@@ -42,30 +42,48 @@ def train_model(args):
 
     sheets_names = []
     all_results = pd.DataFrame()
+
+    classes_for_const = ''
+    for cons_class in args.labels_for_const:
+        classes_for_const += '_' + str(cons_class)
+
     excel_name = 'results ' + args.algo_name + ' depth ' + str(args.depth) + ' alpha ' + str(
-        args.alpha) + ' criterion ' + args.crit + ' const ' + str(args.const_number) + '%.xlsx'
-    print(excel_name)
+        args.alpha) + ' criterion ' + args.crit + ' const ' + str(
+        args.const_number) + '% on class' + classes_for_const + '.xlsx'
+
     if not os.path.exists(os.path.join(args.path, 'Runs')):
         os.mkdir(os.path.join(args.path, 'Runs'))
-    save_excel_path = os.path.join(args.path, 'Runs', excel_name)
+
+    if not os.path.exists(os.path.join(args.path, 'Runs', args.algo_name)):
+        os.mkdir(os.path.join(args.path, 'Runs', args.algo_name))
+
+    direction = os.path.join(args.path, 'Runs', args.algo_name,
+                             'const ' + str(args.const_number) + '% on class' + classes_for_const)
+
+    if not os.path.exists(direction):
+        os.mkdir(direction)
+
+    save_excel_path = os.path.join(direction, excel_name)
 
     with pd.ExcelWriter(save_excel_path) as writer:
         # running on SPLIT_NUMBER folds
 
         for fold_ind in range(args.split_number):
-            print(f'--Phase 2: ML Model fit folder {fold_ind}--')
+            # print(f'--Phase 1.2: ML Model fit folder {fold_ind}--')
 
             train_lab, train_feat, val_lab, val_feat = read_split_data(fold_ind, args.path)
-            model = ml.ml_model_fit(args, train_feat, train_lab)
+
+            model = ml.ml_model_fit(train_feat, train_lab, args.algo_name, args.depth, args.alpha, args.crit)
             # running on train/val in each fold
-            print(f'--Phase 3: ML Model predict on train & val folder {fold_ind}--')
+            # print(f'--Phase 1.3: ML Model predict on train & val folder {fold_ind}--')
 
             for lab, feats, result_type in [(train_lab, train_feat, 'train'), (val_lab, val_feat, 'val')]:
                 ml_predict_prob, ml_predict_hard = ml.ml_model_predict(model, feats)
-                # print(ml_predict_prob)
+
                 objective_function, or_predict_hard = operation_research_func(ml_predict_prob, args.number_of_labels,
                                                                               args.cost_matrix, args.fault_price,
                                                                               args.const_number, args.labels_for_const)
+
                 results = train_eng.build_excel_fold(lab, ml_predict_prob, or_predict_hard, args.cost_matrix,
                                                      args.number_of_labels)
 

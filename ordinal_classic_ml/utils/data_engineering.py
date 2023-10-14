@@ -2,6 +2,7 @@ import os
 import pandas as pd
 from sklearn.model_selection import StratifiedKFold
 import numpy as np
+from sklearn.model_selection import train_test_split
 
 
 def feature_engineering(path, file_name):
@@ -36,19 +37,23 @@ def feature_engineering(path, file_name):
         else:
             numerical_columns_subset.append(i)
 
-
     for col in categorical_columns_subset:
         df[col] = df[col].astype('category').cat.codes
 
-
     # Create labels column
 
-    if 'train' in file_name:
-        df['labels'] = df['churn_risk_score']-1
-        df = df.drop(['churn_risk_score'], axis=1)
+    df['labels'] = (df['churn_risk_score'] - 1) * 2
+    df = df.drop(['churn_risk_score'], axis=1)
+    df.to_csv(os.path.join(path, 'eng_all_data.csv'))
 
-    # Create file with engineered data
-    df.to_csv(os.path.join(path, 'eng_' + file_name))
+    # rain rest split
+    X = df.drop(['labels'], axis=1)
+    y = df['labels']
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1666, random_state=42)
+    df_train = pd.concat([X_train, y_train], axis=1)
+    df_train.to_csv(os.path.join(path, 'eng_train_data.csv'))
+    df_test = pd.concat([X_test, y_test], axis=1)
+    df_test.to_csv(os.path.join(path, 'eng_test_data.csv'))
 
     return df
 
@@ -67,7 +72,6 @@ def split_data(train, path, split_number, seed):
         if not os.path.exists(os.path.join(path, 'splited_data')):
             os.mkdir(os.path.join(path, 'splited_data'))
         excel_name = os.path.join(path, 'splited_data', 'training_data' + str(fold_ind + 1) + '.xlsx')
-        print(excel_name)
 
         train.to_excel(excel_name)
 
@@ -79,10 +83,8 @@ def main():
 
     path = r'C:\Users\tal43\Documents\studies\pythonProject\ordinal-classic-ml-and-optimization'
 
-    train = feature_engineering(path, 'train_data.csv')
-    split_data(train, path, split_number, seed)
-    test = feature_engineering(path, 'test_data.csv')
-    # test.to_excel(os.path.join(path, 'splited_data', 'testing_data.xlsx'))
+    _ = feature_engineering(path, 'train_data.csv')
+    # split_data(df, path, split_number, seed)
 
 
 if __name__ == '__main__':

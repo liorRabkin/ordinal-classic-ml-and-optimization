@@ -36,14 +36,16 @@ def operation_research_func(predict_labels_proba, num_of_labels, cost_matrix, fa
     predict_hard = np.zeros(num_of_samples).astype(int)
     np.random.seed(42)
     solver = pywraplp.Solver.CreateSolver('GLOP')
+    # from ortools.constraint_solver import pywrapcp
+    # solver = pywrapcp.Solver('CPSimple')
+
     cost_dot_proba = np.dot(cost_matrix, predict_labels_proba.transpose())
 
     for i in range(num_of_samples):
         for j in range(num_of_labels):
-            # R[(i, j)] = solver.IntVar(0, solver.infinity(), 'R{}{}'.format(i, j))
+            # R[(i, j)] = solver.IntVar(0, 1, 'R{}{}'.format(i, j))
             R[(i, j)] = solver.NumVar(0, solver.infinity(), 'R{}{}'.format(i, j))
             objective_function += R[(i, j)] * cost_dot_proba[j, i] + R[(i, j)] * fault_price[j]
-
     # Objective function
     solver.Minimize(objective_function)
 
@@ -72,6 +74,8 @@ def operation_research_func(predict_labels_proba, num_of_labels, cost_matrix, fa
         column_place = -1
         for j in range(num_of_labels):
             # print(' R[({}, {})] ='.format(i, j),  R[(i, j)].solution_value())
+
+            # print(f'R[({i}, {j})]: {R[(i, j)].solution_value()}')
             save.append(R[(i, j)].solution_value())
             # print(R[(i, j)].solution_value())
             if R[(i, j)].solution_value() == 1:
@@ -80,4 +84,6 @@ def operation_research_func(predict_labels_proba, num_of_labels, cost_matrix, fa
                 predict_hard[i] = j
         # assert column_place != -1, 'cannot find column for row={}'.format(i)
 
+    print(R[(0, 0)].solution_value())
+    print('---------------------------------------')
     return objective_function_value, predict_hard
